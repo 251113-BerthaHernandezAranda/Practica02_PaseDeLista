@@ -15,21 +15,20 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
 class MainActivity : AppCompatActivity() {
-private lateinit var tvMensaje: TextView
-private lateinit var etxtNombre: EditText
-private lateinit var etxtMatrícula: EditText
-private lateinit var btnRegistrar: Button
-private lateinit var btnLimpiar: Button
-private lateinit var pbCarga: ProgressBar
-
+    private lateinit var tvMensaje: TextView
+    private lateinit var etxtNombre: EditText
+    private lateinit var etxtMatricula: EditText
+    private lateinit var btnRegistrar: Button
+    private lateinit var btnLimpiar: Button
+    private lateinit var pbCarga: ProgressBar
+    private var contadorAsistentes = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) {v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBar = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBar.left, systemBar.top, systemBar.right, systemBar.bottom)
             insets
@@ -37,7 +36,7 @@ private lateinit var pbCarga: ProgressBar
 
         tvMensaje = findViewById(R.id.tvMensaje)
         etxtNombre = findViewById(R.id.etxtNombre)
-        etxtMatrícula = findViewById(R.id.etxtMatrícula)
+        etxtMatricula = findViewById(R.id.etxtMatricula)
         btnRegistrar = findViewById(R.id.btnRegistrar)
         btnLimpiar = findViewById(R.id.btnLimpiar)
         pbCarga = findViewById(R.id.pbCarga)
@@ -49,41 +48,54 @@ private lateinit var pbCarga: ProgressBar
 
     }
 
-    private fun registrarse(){
+    private fun registrarse() {
         val nombre = etxtNombre.text.toString().trim()
-        val matricula = etxtMatrícula.text.toString().trim()
+        val matricula = etxtMatricula.text.toString().trim()
 
-        if (matricula.isEmpty()){
-            Toast.makeText(this, "Escribe tu matricula porfavor", Toast.LENGTH_SHORT).show()
+        if (nombre.isEmpty()) {
+            Toast.makeText(this, "Escribe tu nombre. ", Toast.LENGTH_SHORT).show()
             return
-        }else if (matricula.length <3) {
-            Toast.makeText(this, "Error: matricula invalida", Toast.LENGTH_SHORT).show()
+        } else if (nombre.length < 3) {
+            Toast.makeText(this, "El nombre es demasiado corto.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        if (matricula.isEmpty()) {
+            Toast.makeText(this, "Escribe tu matrícula. ", Toast.LENGTH_SHORT).show()
+            return
+        } else if (matricula.length != 7) {
+            Toast.makeText(this, "La matrícula debe tener 7 dígitos. ", Toast.LENGTH_SHORT).show()
+            return
         }
 
-        if (nombre.isEmpty()){
-            Toast.makeText(this, "Escribe tu nombre Primero", Toast.LENGTH_SHORT).show()
-            return
-        }else if (nombre.length <3) {
-            Toast.makeText(this, "El nombre es muy corto", Toast.LENGTH_SHORT).show()
-        }
-
-
+        contadorAsistentes++
         pbCarga.visibility = View.VISIBLE
         tvMensaje.text = ""
         btnRegistrar.isEnabled = false
+        btnLimpiar.isEnabled = false
 
         Handler(Looper.getMainLooper()).postDelayed({
             pbCarga.visibility = View.GONE
-            tvMensaje.text = "Hola, $nombre, BIENVENIDO AL CAMPUS VIRTUAL DE LA UTXJ "
+            //contadorAsistentes++
+            //tvMensaje.text = "Hola, $nombre, BIENVENIDO AL CAMPUS VIRTUAL DE LA UTXJ. "
+            tvMensaje.text =
+                "Registrado: $nombre ($matricula)\n" + "Asistente número $contadorAsistentes"
             btnRegistrar.isEnabled = true
+            btnLimpiar.isEnabled = true
+            btnRegistrar.text = "Registrar otro"
         }, 1500)
     }
 
-    private fun limpiar (){
+    //POSTURA Y JUSTIFICACIÓN (PASO 5):
+    /*
+      El botón limpiar no debe reinicar el contador de asistentes,
+      porque su propósito es vaciar los campos, permitiendo nuevo registro.
+      si el contador reiniciara entonces se perdería la cuenta acumulada de alumnos.
+     */
+    private fun limpiar() {
         etxtNombre.setText("")
-        etxtMatrícula.setText("")
+        etxtMatricula.setText("")
         pbCarga.visibility = View.GONE
-        tvMensaje.text = "Escribe tus datos para registrarte"
+        tvMensaje.text = "Escribe tus datos para registrarte."
         btnRegistrar.text = "Registrar"
         btnRegistrar.isEnabled = true
         etxtNombre.requestFocus()
